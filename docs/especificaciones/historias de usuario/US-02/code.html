@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec5b",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen pb-24">
+<!-- Header Navigation -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10">
+<div class="flex items-center p-4 justify-between max-w-lg mx-auto w-full">
+<div class="flex size-10 shrink-0 items-center">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="User profile avatar smiling man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDH8iscQEEwlQe_49IxRHx1u8hUc2iyh0MiERm4lY6R0SfyQu-osQaBodzsyJPE5p1_IRiM0CzqMLR71hLciPPvEt-q-zgCgU8xgw1ZSl3RjiG5gdv4kG25aUQZ092h025I5rwUR6yV1UzVGULRBHXVs-2Xkwl5mV9YS7WfoDbzxfJ9FSnsKxG6673OCnTxiurkskf1mOJzC2-aHTmMBdevvgA7oR0_W83HyUyx0ALGqKmBmTxQbFCnSXo91eRl4Xv-r-7q8TzdSw");'></div>
+</div>
+<div class="flex flex-col items-center"><div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">chevron_left</button>
+<div class="flex flex-col items-center">
+<span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Hoy</span>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight">Octubre 24</h2>
+</div>
+<button class="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">chevron_right</button>
+</div></div>
+</div>
+</header>
+<main class="max-w-lg mx-auto px-4 py-6 space-y-8">
+<!-- Calorie Ring Section -->
+<section class="flex flex-col items-center justify-center bg-white dark:bg-slate-900/50 rounded-xl p-8 shadow-sm border border-primary/5">
+<div class="relative flex items-center justify-center w-56 h-56">
+<!-- SVG Progress Ring -->
+<svg class="w-full h-full">
+<circle class="text-primary/10" cx="112" cy="112" fill="transparent" r="90" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary" cx="112" cy="112" fill="transparent" r="90" stroke="currentColor" stroke-dasharray="565.48" stroke-dashoffset="180" stroke-linecap="round" stroke-width="12" style="transform: rotate(-90deg); transform-origin: 50% 50%;"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-4xl font-black text-slate-900 dark:text-slate-100">650</span>
+<span class="text-slate-500 text-sm font-medium uppercase tracking-wide">RESTANTES</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-8 w-full mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+<div class="text-center">
+<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">META</p>
+<p class="text-lg font-bold">1,850</p>
+</div>
+<div class="text-center">
+<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">CONSUMIDO</p>
+<p class="text-lg font-bold">1,200</p>
+</div>
+</div>
+</section>
+<!-- Macro Cards -->
+<section>
+<h3 class="text-slate-900 dark:text-slate-100 text-lg font-bold mb-4">Macros Diarios</h3>
+<div class="grid grid-cols-3 gap-3">
+<!-- Protein Card (Primary/Green) -->
+<div class="flex flex-col gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary text-xl">fitness_center</span>
+<span class="text-[10px] font-bold text-primary">80%</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-slate-900 dark:text-slate-100 text-base font-bold">120g</h4>
+<p class="text-slate-500 text-xs font-medium">Proteína</p>
+</div>
+<div class="w-full bg-primary/20 h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 80%"></div>
+</div>
+</div>
+<!-- Carbs Card (Yellow/Amber) -->
+<div class="flex flex-col gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-amber-500 text-xl">bakery_dining</span>
+<span class="text-[10px] font-bold text-amber-500">65%</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-slate-900 dark:text-slate-100 text-base font-bold">180g</h4>
+<p class="text-slate-500 text-xs font-medium">Carbo</p>
+</div>
+<div class="w-full bg-amber-500/20 h-1 rounded-full overflow-hidden">
+<div class="bg-amber-500 h-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- Fats Card (Orange/Red) -->
+<div class="flex flex-col gap-3 rounded-xl border border-orange-500/20 bg-orange-500/5 p-4">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-orange-500 text-xl">opacity</span>
+<span class="text-[10px] font-bold text-orange-500">45%</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-slate-900 dark:text-slate-100 text-base font-bold">45g</h4>
+<p class="text-slate-500 text-xs font-medium">Grasas</p>
+</div>
+<div class="w-full bg-orange-500/20 h-1 rounded-full overflow-hidden">
+<div class="bg-orange-500 h-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Meal Timeline -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-slate-900 dark:text-slate-100 text-lg font-bold">Registro de Comidas</h3>
+</div>
+<div class="space-y-3">
+<!-- Breakfast -->
+<div class="bg-white dark:bg-slate-900/50 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">wb_sunny</span>
+</div>
+<div>
+<h4 class="font-bold">Desayuno</h4>
+<p class="text-xs text-slate-500 font-medium">420 kcal</p>
+</div>
+</div>
+<button class="size-8 rounded-full bg-primary flex items-center justify-center text-slate-900 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+<!-- Lunch (Expanded View Concept) -->
+<div class="bg-white dark:bg-slate-900/50 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm ring-1 ring-primary/20">
+<div class="p-4 flex items-center justify-between border-b border-slate-50 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">lunch_dining</span>
+</div>
+<div>
+<h4 class="font-bold">Almuerzo</h4>
+<p class="text-xs text-slate-500 font-medium">580 kcal</p>
+</div>
+</div>
+<button class="size-8 rounded-full bg-primary flex items-center justify-center text-slate-900 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+<div class="p-4 bg-slate-50/50 dark:bg-slate-800/20 space-y-3">
+<div class="flex items-center justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400">Grilled Chicken Salad</span>
+<span class="font-semibold text-slate-900 dark:text-slate-100">350 kcal</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400">Olive Oil Dressing</span>
+<span class="font-semibold text-slate-900 dark:text-slate-100">120 kcal</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400">Quinoa Bowl</span>
+<span class="font-semibold text-slate-900 dark:text-slate-100">110 kcal</span>
+</div>
+</div>
+</div>
+<!-- Dinner -->
+<div class="bg-white dark:bg-slate-900/50 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">dinner_dining</span>
+</div>
+<div>
+<h4 class="font-bold">Cena</h4>
+<p class="text-xs text-slate-500 font-medium">Pendiente</p>
+</div>
+</div>
+<button class="size-8 rounded-full bg-primary flex items-center justify-center text-slate-900 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+<!-- Snacks -->
+<div class="bg-white dark:bg-slate-900/50 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">cookie</span>
+</div>
+<div>
+<h4 class="font-bold">Meriendas</h4>
+<p class="text-xs text-slate-500 font-medium">200 kcal</p>
+</div>
+</div>
+<button class="size-8 rounded-full bg-primary flex items-center justify-center text-slate-900 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 pb-safe-area">
+<div class="max-w-lg mx-auto px-6 py-3 items-center">
+<div class="grid grid-cols-5 w-full items-end pb-2">
+<!-- Position 1: Inicio -->
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-primary transition-all scale-110" style="font-variation-settings: 'FILL' 1">home</span>
+<span class="text-[10px] font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tighter">Inicio</span>
+</a>
+<!-- Position 2: Mis Comidas -->
+<a class="flex flex-col items-center gap-1 group opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">restaurant</span>
+<span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tighter">Comidas</span>
+</a>
+<!-- Position 3: Central FAB (Registrar) -->
+<div class="flex flex-col items-center -mb-2">
+<button class="size-14 rounded-full bg-primary flex items-center justify-center text-slate-900 shadow-xl shadow-primary/30 border-4 border-background-light dark:border-background-dark -mt-10 mb-1 relative">
+<span class="material-symbols-outlined text-2xl font-bold">add</span>
+<span class="material-symbols-outlined absolute -top-1 -right-1 text-sm bg-white dark:bg-slate-900 rounded-full p-0.5 text-primary">auto_awesome</span>
+</button>
+<span class="text-[10px] font-bold text-primary uppercase tracking-tighter">Registrar</span>
+</div>
+<!-- Position 4: Progreso -->
+<a class="flex flex-col items-center gap-1 group opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">insights</span>
+<span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tighter">Progreso</span>
+</a>
+<!-- Position 5: Perfil -->
+<a class="flex flex-col items-center gap-1 group opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
+<span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tighter">Perfil</span>
+</a>
+</div>
+</div>
+</nav>
+</body></html>
