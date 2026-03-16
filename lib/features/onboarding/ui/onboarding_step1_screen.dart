@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/logout_dialog.dart';
 import '../logic/onboarding_provider.dart';
 import 'widgets/continue_button_widget.dart';
 import 'widgets/numeric_field_widget.dart';
@@ -22,6 +23,23 @@ class OnboardingStep1Screen extends StatelessWidget {
     return Scaffold(
       // Fondo coherente con el tema de la app
       backgroundColor: AppColors.background,
+      // AppBar con botón de logout
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.logout,
+              color: AppColors.secondaryText,
+            ),
+            onPressed: () => mostrarDialogoCerrarSesion(
+              context,
+              mensaje: 'Se perderán los cambios no guardados. ¿Deseas cerrar sesión?',
+            ),
+          ),
+        ],
+      ),
       // Footer sticky con el botón de acción principal
       bottomNavigationBar: ContinueButtonWidget(
         onPressed: () async {

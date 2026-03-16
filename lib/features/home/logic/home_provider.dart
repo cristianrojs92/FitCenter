@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../data/daily_nutrition_repository.dart';
+import '../data/models/daily_nutrition_summary_model.dart';
 
 /// Enumeración de los types de comida disponibles en el diario diario
 enum MealType {
@@ -107,36 +110,76 @@ class DailyMacros {
 
   /// Porcentaje de proteína consumida respecto a la meta (0.0 a 1.0)
   double get proteinPercentage =>
-      (proteinGramos / proteinMeta).clamp(0.0, 1.0);
+      proteinMeta > 0 ? (proteinGramos / proteinMeta).clamp(0.0, 1.0) : 0.0;
 
   /// Porcentaje de carbs consumidos respecto a la meta (0.0 a 1.0)
   double get carbsPercentage =>
-      (carbsGramos / carbsMeta).clamp(0.0, 1.0);
+      carbsMeta > 0 ? (carbsGramos / carbsMeta).clamp(0.0, 1.0) : 0.0;
 
   /// Porcentaje de fats consumidas respecto a la meta (0.0 a 1.0)
   double get fatsPercentage =>
-      (fatsGramos / fatsMeta).clamp(0.0, 1.0);
+      fatsMeta > 0 ? (fatsGramos / fatsMeta).clamp(0.0, 1.0) : 0.0;
 }
 
 /// Proveedor de estado para la pantalla Home del Dashboard.
 /// Maneja el resumen diario de calorías, macros, meals y el estado del Bottom Sheet.
 class HomeProvider extends ChangeNotifier {
+  /// Repositorio para consultar datos nutricionales desde Supabase
+  final DailyNutritionRepository _nutritionRepository =
+      DailyNutritionRepository();
+
+  /// Callback que se ejecuta cuando se detectan metas nutricionales incompletas (null)
+  VoidCallback? onGoalsIncomplete;
+
+  /// Fecha actualmente seleccionada para mostrar el resumen (por defecto hoy)
+  DateTime _selectedDate = DateTime.now();
+
+  /// Resumen nutricional del día obtenido desde Supabase (null si aún no se carga)
+  DailyNutritionSummaryModel? _nutritionSummary;
+
+  /// Indica si se está cargando el resumen nutricional desde el servidor
+  bool _isLoading = false;
+
+  /// Mensaje de error si falla la carga del resumen nutricional
+  String? _errorMessage;
+
   // ── Estado del diario de calorías ──────────────────────────────────────────
 
-  /// Meta diaria de calorías calculada en el onboarding
-  final int calorieGoal = 1850;
+  /// Meta diaria de calorías obtenida desde Supabase o 0 si aún no se carga o es null
+  int get calorieGoal => _nutritionSummary?.metaCalories ?? 0;
 
-  /// Total de calorías consumidas hoy (suma de todas las meals)
-  int get consumedCalories =>
-      _meals.fold(0, (suma, comida) => suma + comida.totalCalories);
+  /// Total de calorías consumidas hoy obtenido desde Supabase o 0 si aún no se carga
+  int get consumedCalories => _nutritionSummary?.consumedCalories ?? 0;
 
-  /// Calorías restantes del día (meta menos consumido, mínimo 0)
-  int get remainingCalories =>
-      (calorieGoal - consumedCalories).clamp(0, calorieGoal);
+  /// Calorías restantes del día (meta menos consumido, mínimo 0) o 0 si la meta es null
+  int get remainingCalories => _nutritionSummary?.remainingCalories ?? 0;
 
   /// Porcentaje completado del día (0.0 a 1.0) para el anillo de progreso
-  double get completionPercentage =>
-      (consumedCalories / calorieGoal).clamp(0.0, 1.0);
+  double get completionPercentage {
+    // Evitamos división por cero si no hay meta definida
+    if (calorieGoal == 0) return 0.0;
+    return (consumedCalories / calorieGoal).clamp(0.0, 1.0);
+  }
+
+  /// Expone el estado de carga para mostrar indicadores en la UI
+  bool get isLoading => _isLoading;
+
+  /// Expone el mensaje de error si hubo un problema al cargar datos
+  String? get errorMessage => _errorMessage;
+
+  /// Expone la fecha actualmente seleccionada
+  DateTime get selectedDate => _selectedDate;
+
+  /// Verifica si las metas nutricionales están incompletas (null)
+  /// Retorna true solo cuando hay datos cargados y las metas son null
+  bool get hasIncompleteGoals {
+    // Solo retornamos true si hay datos cargados y las metas están incompletas
+    if (_nutritionSummary == null) return false;
+    return _nutritionSummary!.hasCompletedGoals == false;
+  }
+
+  /// Indica si hay datos nutricionales cargados (para verificar antes de navegar)
+  bool get hasNutritionData => _nutritionSummary != null;
 
   // ── Estado de las meals del día ──────────────────────────────────────────
 
@@ -166,15 +209,31 @@ class HomeProvider extends ChangeNotifier {
 
   // ── Macros diarios ─────────────────────────────────────────────────────────
 
-  /// Estado actual de los macronutrientes diarios del usuario
-  final DailyMacros macros = const DailyMacros(
-    proteinGramos: 120,
-    proteinMeta: 150,
-    carbsGramos: 180,
-    carbsMeta: 277,
-    fatsGramos: 45,
-    fatsMeta: 100,
-  );
+  /// Estado actual de los macronutrientes diarios obtenido desde Supabase
+  /// Retorna valores por defecto si aún no se han cargado los datos o las metas son null
+  DailyMacros get macros {
+    // Si tenemos datos del servidor, los usamos
+    if (_nutritionSummary != null) {
+      return DailyMacros(
+        proteinGramos: _nutritionSummary!.macros.protein.consumed,
+        // Usamos 0 si la meta es null para evitar errores en la UI
+        proteinMeta: _nutritionSummary!.macros.protein.meta ?? 0.0,
+        carbsGramos: _nutritionSummary!.macros.carbs.consumed,
+        carbsMeta: _nutritionSummary!.macros.carbs.meta ?? 0.0,
+        fatsGramos: _nutritionSummary!.macros.fats.consumed,
+        fatsMeta: _nutritionSummary!.macros.fats.meta ?? 0.0,
+      );
+    }
+    // Valores por defecto mientras se cargan los datos reales
+    return const DailyMacros(
+      proteinGramos: 0,
+      proteinMeta: 0,
+      carbsGramos: 0,
+      carbsMeta: 0,
+      fatsGramos: 0,
+      fatsMeta: 0,
+    );
+  }
 
   // ── Estado del Bottom Sheet de registro ───────────────────────────────────
 
@@ -228,5 +287,68 @@ class HomeProvider extends ChangeNotifier {
     }).toList();
     // Notificamos para que el dashboard se actualice con las nuevas calorías
     notifyListeners();
+    // Recargamos los datos desde el servidor para sincronizar con la base de datos
+    loadDailyNutrition(_selectedDate);
+  }
+
+  /// Carga el resumen nutricional del día desde Supabase.
+  /// Obtiene el userId del usuario autenticado y consulta el repositorio.
+  /// Si detecta que las metas son null, ejecuta el callback onGoalsIncomplete.
+  Future<void> loadDailyNutrition(DateTime date) async {
+    // Obtenemos el usuario autenticado actual
+    final currentUser = Supabase.instance.client.auth.currentUser;
+
+    // Si no hay usuario autenticado, no podemos cargar datos
+    if (currentUser == null) {
+      _errorMessage = 'Usuario no autenticado';
+      notifyListeners();
+      return;
+    }
+
+    // Actualizamos el estado de carga antes de iniciar la consulta
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // Llamamos al repositorio para obtener el resumen nutricional del día
+      final summary = await _nutritionRepository.getDailyNutritionSummary(
+        currentUser.id,
+        date,
+      );
+
+      // Guardamos el resumen obtenido y actualizamos la fecha seleccionada
+      _nutritionSummary = summary;
+      _selectedDate = date;
+      _errorMessage = null;
+
+      // Notificamos a los listeners para que la UI se actualice
+      notifyListeners();
+
+      // Verificamos si las metas están incompletas (null) después de notificar
+      // Esto permite que el build se ejecute y detecte el cambio
+      if (summary.hasCompletedGoals == false) {
+        // Ejecutamos el callback para navegar al onboarding
+        onGoalsIncomplete?.call();
+      }
+    } catch (e) {
+      // Capturamos cualquier error y guardamos el mensaje para mostrarlo al usuario
+      _errorMessage = e.toString();
+      _nutritionSummary = null;
+    } finally {
+      // Siempre actualizamos el estado de carga al finalizar
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Cambia la fecha seleccionada y recarga los datos para esa fecha.
+  void changeDate(DateTime newDate) {
+    // Solo recargamos si la fecha es diferente a la actual
+    if (newDate.year != _selectedDate.year ||
+        newDate.month != _selectedDate.month ||
+        newDate.day != _selectedDate.day) {
+      loadDailyNutrition(newDate);
+    }
   }
 }

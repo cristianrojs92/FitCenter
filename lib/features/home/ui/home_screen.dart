@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/logout_dialog.dart';
+import '../logic/home_provider.dart';
+import '../../onboarding/ui/onboarding_step1_screen.dart';
 import 'widgets/calorie_ring_widget.dart';
 import 'widgets/navigation_bar_widget.dart';
 import 'widgets/meal_timeline_widget.dart';
@@ -9,11 +13,53 @@ import 'widgets/macro_cards_widget.dart';
 /// Pantalla principal del Dashboard de DietX.
 /// Orquesta todos los widgets del home: anillo de calorías, macros,
 /// línea de tiempo de meals y la barra de navegación con FAB.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _hasNavigatedToOnboarding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargamos los datos nutricionales del día actual cuando se monta la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<HomeProvider>();
+      provider.loadDailyNutrition(DateTime.now());
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Escuchamos cambios en el provider para detectar cuando las metas están incompletas
+    final provider = context.watch<HomeProvider>();
+    
+    // Verificamos si las metas están incompletas después de que se carguen los datos
+    // Solo verificamos si no estamos cargando, hay datos cargados, las metas están incompletas, y aún no hemos navegado
+    if (!provider.isLoading && 
+        provider.hasNutritionData &&
+        provider.hasIncompleteGoals && 
+        !_hasNavigatedToOnboarding) {
+      // Marcamos que ya navegamos para evitar múltiples navegaciones
+      _hasNavigatedToOnboarding = true;
+      
+      // Esperamos al siguiente frame para asegurar que el contexto esté listo
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        
+        // Navegamos al onboarding usando pushReplacement para evitar volver atrás
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => const OnboardingStep1Screen(),
+          ),
+        );
+      });
+    }
+
     return Scaffold(
       // Fondo coherente con el tema general de la app
       backgroundColor: AppColors.background,
@@ -85,8 +131,17 @@ class _AppBarHome extends StatelessWidget {
           ),
           // Fecha del día con navegación entre días
           _SelectorFecha(),
-          // Espacio reservado para mantener la fecha centrada
-          const SizedBox(width: 40),
+          // Botón de logout a la derecha
+          IconButton(
+            icon: const Icon(
+              Icons.logout,
+              color: AppColors.secondaryText,
+            ),
+            onPressed: () => mostrarDialogoCerrarSesion(context),
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          ),
         ],
       ),
     );

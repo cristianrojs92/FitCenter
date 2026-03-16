@@ -33,7 +33,7 @@ class MacroCardsWidget extends StatelessWidget {
               child: _TarjetaMacro(
                 icon: Icons.fitness_center,
                 name: 'Proteína',
-                gramos: macros.proteinGramos,
+                gramos: macros.proteinMeta,
                 porcentaje: macros.proteinPercentage,
                 color: AppColors.protein,
                 colorFondo: AppColors.softProtein,
@@ -45,7 +45,7 @@ class MacroCardsWidget extends StatelessWidget {
               child: _TarjetaMacro(
                 icon: Icons.bakery_dining_outlined,
                 name: 'Carbo',
-                gramos: macros.carbsGramos,
+                gramos: macros.carbsMeta,
                 porcentaje: macros.carbsPercentage,
                 color: AppColors.carbs,
                 colorFondo: AppColors.softCarbs,
@@ -57,7 +57,7 @@ class MacroCardsWidget extends StatelessWidget {
               child: _TarjetaMacro(
                 icon: Icons.water_drop_outlined,
                 name: 'Grasas',
-                gramos: macros.fatsGramos,
+                gramos: macros.fatsMeta,
                 porcentaje: macros.fatsPercentage,
                 color: AppColors.fats,
                 colorFondo: AppColors.softFats,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../home/data/daily_nutrition_repository.dart';
 import '../../home/ui/home_screen.dart';
 import '../../onboarding/data/user_profile_repository.dart';
 import '../../onboarding/ui/onboarding_step1_screen.dart';
@@ -10,9 +11,10 @@ import 'login_screen.dart';
 /// antes de decidir a qué pantalla navegar.
 ///
 /// Flujo de decisión:
-/// - Sesión activa + perfil completo → Dashboard Home
-/// - Sesión activa + perfil vacío (usuario nuevo) → Onboarding
 /// - Sin sesión → Login
+/// - Sesión activa + onboarding incompleto → Onboarding
+/// - Sesión activa + onboarding completo + metas sin configurar → Onboarding
+/// - Sesión activa + onboarding completo + metas configuradas → Dashboard Home
 class SessionRouterScreen extends StatefulWidget {
   const SessionRouterScreen({super.key});
 
@@ -22,6 +24,8 @@ class SessionRouterScreen extends StatefulWidget {
 
 class _SessionRouterScreenState extends State<SessionRouterScreen> {
   final UserProfileRepository _profileRepository = UserProfileRepository();
+  final DailyNutritionRepository _nutritionRepository =
+      DailyNutritionRepository();
 
   @override
   void initState() {
@@ -48,9 +52,23 @@ class _SessionRouterScreenState extends State<SessionRouterScreen> {
 
         if (!mounted) return;
 
+        // Si no completó onboarding, vamos directo a onboarding
+        if (!hasCompletedOnboarding) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const OnboardingStep1Screen()),
+          );
+          return;
+        }
+
+        // Si completó onboarding, verificamos si tiene metas configuradas
+        final hasGoalsConfigured = await _nutritionRepository
+            .hasNutritionGoalsConfigured(session.user.id);
+
+        if (!mounted) return;
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => hasCompletedOnboarding
+            builder: (_) => hasGoalsConfigured
                 ? const HomeScreen()
                 : const OnboardingStep1Screen(),
           ),
